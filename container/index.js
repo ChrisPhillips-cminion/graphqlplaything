@@ -8,7 +8,7 @@ const app = express();
 const fs = require('fs');
 const config = {
   database: 'apim',
-  host: '172.21.188.214',
+  host: 'apis-minim-780c5c89-780c5c89-postgres',
   user:fs.readFileSync('/etc/cred/username').toString(),
   password:fs.readFileSync('/etc/cred/password').toString(),
   ssl: {
