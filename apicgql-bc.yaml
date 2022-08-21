@@ -1,0 +1,61 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: jmeter
+  annotations:
+    description: Template to build a JMeter container image to test applications on OCP.
+    tags: java,jmeter
+    iconClass: icon-rh-openjdk
+    openshift.io/provider-display-name: Red Hat, Inc.
+    openshift.io/support-url: https://access.redhat.com
+labels:
+  template: jmeter
+objects:
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      labels:
+        app: apic-graphql
+      name: apic-graphql
+      namespace: ${APP_NAMESPACE}
+    spec:
+      lookupPolicy:
+        local: false
+  - apiVersion: v1
+    kind: BuildConfig
+    metadata:
+      labels:
+        app: apic-graphql
+      name: apic-graphql
+      namespace: ${APP_NAMESPACE}
+    spec:
+      nodeSelector:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: apic-graphql:v1
+      postCommit: {}
+      resources: {}
+      runPolicy: Serial
+      source:
+        contextDir: "container"
+        git:
+          ref: main
+          uri: "https://github.ibm.com/Chris-Phillips/apic-graphql"
+      strategy:
+        dockerStrategy:
+          from:
+            kind: ImageStreamTag
+            name: node:latest
+            namespace: openshift
+        type: Dockerfile
+      failedBuildsHistoryLimit: 2
+      successfulBuildsHistoryLimit: 1
+      triggers:
+      - type: ConfigChange
+      - type: ImageChange
+parameters:
+  - name: APP_NAMESPACE
+    description: "The namespace where the BuildConfig will be executed."
+    value: "default"
+    required: true
