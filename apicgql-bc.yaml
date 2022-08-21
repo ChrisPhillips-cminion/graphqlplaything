@@ -41,12 +41,12 @@ objects:
         contextDir: "container"
         git:
           ref: main
-          uri: "https://github.ibm.com/Chris-Phillips/apic-graphql"
+          uri: "https://github.com/ChrisPhillips-cminion/graphqlplaything"
       strategy:
         dockerStrategy:
           from:
             kind: ImageStreamTag
-            name: node:latest
+            name: nodejs:16-ubi8-minimal  
             namespace: openshift
         type: Dockerfile
       failedBuildsHistoryLimit: 2
