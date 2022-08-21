@@ -9,8 +9,8 @@ const fs = require('fs');
 const config = {
   database: 'apim',
   host: process.env.pghost,
-  user:fs.readFileSync('/etc/cert/username').toString(),
-  password:fs.readFileSync('/etc/cert/password').toString(),
+  user:fs.readFileSync('/etc/cred/username').toString(),
+  password:fs.readFileSync('/etc/cred/password').toString(),
   // this object will be passed to the TLSSocket constructor
   ssl: {
     ca: fs.readFileSync('/etc/cert/ca.crt').toString(),

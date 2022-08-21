@@ -1,26 +1,23 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: jmeter
+  name: apic-graphql
   annotations:
-    description: Template to deploy a JMeter load tester to test applications on OCP.
-    tags: java,jmeter
-    iconClass: icon-rh-openjdk
-    openshift.io/provider-display-name: Red Hat, Inc.
-    openshift.io/support-url: https://access.redhat.com
+    description: Template to build a graphql container image to test applications on OCP.
+    tags: apic,graphql
 labels:
-  template: jmeter
+  template: apic-graphql
 objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   metadata:
-    name: ${APPLICATION_NAME}
+    name: apic-graphql
     namespace: ${APP_NAMESPACE}
   spec:
     replicas: 3
     revisionHistoryLimit: 1
     selector:
-      app: ${APPLICATION_NAME}
+      app: apic-graphql
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
@@ -33,9 +30,9 @@ objects:
       type: Rolling
     template:
       metadata:
-        name: ${APPLICATION_NAME}
+        name: apic-graphql
         labels:
-          app: ${APPLICATION_NAME}
+          app: apic-graphql
       spec:
         containers:
           -
@@ -45,85 +42,64 @@ objects:
             #   - /bin/sh
             #   - '-c'
             #   - '--'
-            name: ${APPLICATION_NAME}
+            name: apic-graphql
             image: ""
             imagePullPolicy: Always
-            env:
-              - name: RUN_JMETER
-                value: "true"
-              - name: TEST_NAME
-                value: ${TEST_NAME}
-              - name: MEMORY_REQUEST
-                valueFrom:
-                  resourceFieldRef:
-                    containerName: ${APPLICATION_NAME}
-                    resource: requests.memory
-              - name: MEMORY_LIMIT
-                valueFrom:
-                  resourceFieldRef:
-                    containerName: ${APPLICATION_NAME}
-                    resource: limits.memory
             # ports:
             #   - name: http
             #     containerPort: 8080
             #     protocol: TCP
-            resources:
-              limits:
-                # cpu: ${CPU_LIMIT}
-                memory: ${MEMORY_LIMIT}Mi
-              requests:
-                cpu: ${CPU_REQUEST}
-                memory: ${MEMORY_REQUEST}Mi
             volumeMounts:
-              - name: app-config
-                mountPath: "${MOUNT_PATH}"
+            - mountPath: /etc/cred
+              name: apis-minim-780c5c89-780c5c89-postgres-postgres-secret
+              readOnly: true
+            - mountPath: /etc/cert
+              name: apis-minim-780c5c89-db-client-postgres
+              readOnly: true
+        # volumes:
+        #   - name: app-config
+        #     configMap:
+        #       name: apic-graphql-config
         volumes:
-          - name: app-config
-            configMap:
-              name: ${APPLICATION_NAME}-config
+        - name: apis-minim-780c5c89-780c5c89-postgres-postgres-secret
+          secret:
+            defaultMode: 420
+            secretName: apis-minim-780c5c89-780c5c89-postgres-postgres-secret
+        - name: apis-minim-780c5c89-780c5c89-postgres-postgres-secret-apicuser
+          secret:
+            defaultMode: 420
+            secretName: apis-minim-780c5c89-780c5c89-postgres-postgres-secret-apicuser
+        - name: apis-minim-780c5c89-ca
+          secret:
+            defaultMode: 420
+            secretName: apis-minim-780c5c89-ca
+        - name: apis-minim-780c5c89-client
+          secret:
+            defaultMode: 420
+            secretName: apis-minim-780c5c89-client
+        - name: apis-minim-780c5c89-db-client-apicuser
+          secret:
+            defaultMode: 420
+            secretName: apis-minim-780c5c89-db-client-apicuser
+        - name: apis-minim-780c5c89-db-client-postgres
+          secret:
+            defaultMode: 420
+            secretName: apis-minim-780c5c89-db-client-postgres
+        - name: apis-minim-780c5c89-server
+          secret:
+            defaultMode: 420
+            secretName: apis-minim-780c5c89-server
     triggers:
     - type: ConfigChange
     - type: ImageChange
       imageChangeParams:
         automatic: true
         containerNames:
-        - ${APPLICATION_NAME}
+        - apic-graphql
         from:
           kind: ImageStreamTag
-          name: ${APPLICATION_NAME}:v1
+          name: apic-graphql:v1
 parameters:
-  - name: APPLICATION_NAME
-    description: "The name of the Image stream (input)."
-    required: false
-    value: "jmeter"
   - name: APP_NAMESPACE
     description: "The namespace of the application."
     required: true
-  - name: MOUNT_PATH
-    description: "The path where the configuration file of the application is mounted."
-    value: "/opt/jmeter/tests/"
-    required: true
-  - description: Sets the initial memory request in Mi for the application.
-    displayName: Memory Request
-    name: MEMORY_REQUEST
-    value: "512"
-  - description: Sets the memory limit in Mi, available to the application.
-    displayName: Memory Limit
-    name: MEMORY_LIMIT
-    value: "2048"
-  - description: Sets the initial CPU request for the application.
-    displayName: CPU Request
-    name: CPU_REQUEST
-    value: "0.5"
-  - description: Sets the CPU limit, available to the application.
-    displayName: CPU Limit
-    name: CPU_LIMIT
-    value: "2.0"
-  - description: Name of the test that will be executed.
-    displayName: Test Name
-    name: TEST_NAME
-    required: true
-  # - description: Number of instances to run
-  #   displayName: Replica
-  #   name: REPLICAS
-  #   value: "3"
