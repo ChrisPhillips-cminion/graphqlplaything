@@ -46,7 +46,7 @@ objects:
         dockerStrategy:
           from:
             kind: ImageStreamTag
-            name: nodejs:16-ubi8-minimal  
+            name: nodejs:16-ubi8  
             namespace: openshift
         type: Dockerfile
       failedBuildsHistoryLimit: 2
