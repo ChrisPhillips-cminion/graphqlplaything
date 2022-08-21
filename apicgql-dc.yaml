@@ -45,6 +45,9 @@ objects:
             name: apic-graphql
             image: ""
             imagePullPolicy: Always
+            env:
+              - name: pghost
+                value: ${PGHOST}
             # ports:
             #   - name: http
             #     containerPort: 8080
@@ -103,3 +106,6 @@ parameters:
   - name: APP_NAMESPACE
     description: "The namespace of the application."
     required: true
+  - name: PGHOST
+    description: "Service IP for POSTGRESS"
+    default: 172.21.188.214
